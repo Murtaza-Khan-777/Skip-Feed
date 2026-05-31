@@ -5,7 +5,7 @@ SkipFeed is a social media prototype built for a Data Structures and Algorithms 
 
 ---
 
-## 🧠 Core Architecture (The DSA Flex)
+## 🧠 Core Architecture
 
 Instead of traditionally querying an SQL database on every page load, SkipFeed uses a hybrid architecture designed for extreme read speeds:
 
@@ -44,3 +44,8 @@ SkipFeed repurposes the probabilistic levels of a Skip List to act as an algorit
    Run the setup script to build the 4-table SQLite schema.
    ```bash
    python init_db.py
+
+### Start the Flask Server:
+Launch the backend engine. (Note: `use_reloader=False` is set to protect the RAM cache during development).
+```bash
+python app.py
