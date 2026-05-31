@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkipFeed | Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">SkipFeed</div>
+        <div class="nav-links">
+            <a href="{{ url_for('home') }}">Refresh</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+    </nav>
+
+    <div class="main-layout">
+        <aside class="sidebar">
+            <div class="sidebar-card">
+                <h3>Skip List Metrics</h3>
+                <div class="stat-item">Max Height: <span>15</span></div>
+                <div class="stat-item">View: <strong>{{ current_view | capitalize }}</strong></div>
+                <hr>
+                
+                <h3>Friend Requests</h3>
+                <div id="friend-requests">
+                    {% if requests %}
+                        {% for req in requests %}
+                        <div class="request-card">
+                            <span class="username-label"><strong>@{{ req.username }}</strong></span>
+                            <div class="request-actions">
+                                <form action="{{ url_for('accept_friend', friend_id=req.user_id) }}" method="POST" class="inline-form">
+                                    <button type="submit" class="btn-sm accept">✔ Accept</button>
+                                </form>
+                                <form action="{{ url_for('decline_friend', friend_id=req.user_id) }}" method="POST" class="inline-form">
+                                    <button type="submit" class="btn-sm decline">✘ Decline</button>
+                                </form>
+                            </div>
+                        </div>
+                        <hr>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-state">No pending requests</p>
+                    {% endif %}
+                </div>
+
+                <hr>
+
+                <h3>My Friends</h3>
+                <div class="friends-scroll-container">
+                    {% if friends_list %}
+                        {% for friend in friends_list %}
+                        <div class="friend-item">
+                            <span class="status-dot">●</span>
+                            <strong>@{{ friend.username }}</strong>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="empty-state">Lonely here... add some friends!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </aside>
+
+       <main class="feed-container">
+            <section class="post-input">
+                <form action="{{ url_for('add_post') }}" method="POST">
+                    <textarea name="content" placeholder="What's on your skip-list?" required></textarea>
+                    <button type="submit" class="btn-primary">Post</button>
+                </form>
+            </section>
+
+            <div class="feed-selector">
+                <a href="{{ url_for('home', view='friends') }}" class="feed-btn {% if current_view == 'friends' %}active{% endif %}">Friends (Level 2)</a>
+                <a href="{{ url_for('home', view='most_liked') }}" class="feed-btn {% if current_view == 'most_liked' %}active{% endif %}">Most Liked (Level 1)</a>
+                <a href="{{ url_for('home', view='random') }}" class="feed-btn {% if current_view == 'random' %}active{% endif %}">Random (Level 0)</a>
+            </div>
+
+            <div id="posts">
+                {% if posts %}
+                    {% for post in posts %}
+                        <div class="post-card">
+                            <div class="post-header">
+                                <div class="user-info">
+                                    <strong>@{{ post.username }}</strong>
+                                    <span class="node-badge">• SkipList Node</span>
+                                </div>
+                                
+                                {% if post.user_id != session['user_id'] and post.user_id not in friends_ids %}
+                                    <form action="{{ url_for('add_friend', friend_id=post.user_id) }}" method="POST">
+                                        <button type="submit" class="btn-add-friend">+ Add Friend</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                            <p class="post-content">{{ post.content }}</p>
+                            
+                            <div class="post-footer">
+                                <form action="{{ url_for('handle_like', post_id=post.post_id) }}" method="POST">
+                                    <button type="submit" class="btn-like {% if post.already_liked %}liked-state{% endif %}" {% if post.already_liked %}disabled{% endif %}>
+                                        {{ "❤️ Liked" if post.already_liked else "👍 Like" }}
+                                    </button>
+                                    <span class="like-count">{{ post.likes }} likes</span>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %} 
+                {% else %} 
+                    <div class="empty-feed-card">
+                        <p>No posts found in this level.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </main>
+    </div>
+</body>
+</html>
